@@ -590,37 +590,40 @@ Init <- function(sim) {
   ### TODO give options to the user to provide a raster a data table, a raster list or a raster stack
 
   if (!suppliedElsewhere("disturbanceRasters", sim)) {
+    browser()
     ## this case is reading in a sparseDT.
+    ## FRI and presentDay runs use this
     # RTM that the datatable was created with
-    RIA_RTM <- prepInputs(url = 'https://drive.google.com/file/d/1h7gK44g64dwcoqhij24F2K54hs5e35Ci/view?usp=sharing',
-                          destinationPath = dPath) #you probably already have this raster - RIA_RTM.tif on google
-    # need the masterRaster (sim$masterRaster)
-    # sparseDT
-    scfmAnnualBurns <- prepInputs(url = 'https://drive.google.com/file/d/1P41fr5fimmxOTGfNRBgjwXetceW6YS1M/view?usp=sharing',
-                                  destinationPath = 'inputs',
-                                  overwrite = TRUE,
-                                  fun = 'readRDS')
-
-    IndexRTM <- setValues(RIA_RTM, 1:ncell(RIA_RTM))
-
-    #postProcess to match tempTHLB
-    IndexTHLB <- setValues(sim$masterRaster, 1:ncell(sim$masterRaster))
-
-    #postProcess the RTM
-    IndexRTM <- postProcess(IndexRTM, rasterToMatch = sim$masterRaster)
-    #build matching data.table
-
-    indexDT <- data.table(rtmIndex = getValues(IndexRTM),
-                          thlbIndex = getValues(IndexTHLB))
-    sim$distIndexDT <- indexDT[!is.na(rtmIndex)]
-
-    #the NAs in rtmIndex are pixels that are not in THLB (but inside the landscape) - we can remove them
-    scfmAnnualBurns[,events := 1L]
-    sim$disturbanceRasters <- scfmAnnualBurns
+    # RIA_RTM <- prepInputs(url = 'https://drive.google.com/file/d/1h7gK44g64dwcoqhij24F2K54hs5e35Ci/view?usp=sharing',
+    #                       destinationPath = dPath) #you probably already have this raster - RIA_RTM.tif on google
+    # # need the masterRaster (sim$masterRaster)
+    # # sparseDT
+    # scfmAnnualBurns <- prepInputs(url = 'https://drive.google.com/file/d/1P41fr5fimmxOTGfNRBgjwXetceW6YS1M/view?usp=sharing',
+    #                               destinationPath = 'inputs',
+    #                               overwrite = TRUE,
+    #                               fun = 'readRDS')
+    #
+    # IndexRTM <- setValues(RIA_RTM, 1:ncell(RIA_RTM))
+    #
+    # #postProcess to match tempTHLB
+    # IndexTHLB <- setValues(sim$masterRaster, 1:ncell(sim$masterRaster))
+    #
+    # #postProcess the RTM
+    # IndexRTM <- postProcess(IndexRTM, rasterToMatch = sim$masterRaster)
+    # #build matching data.table
+    #
+    # indexDT <- data.table(rtmIndex = getValues(IndexRTM),
+    #                       thlbIndex = getValues(IndexTHLB))
+    # sim$distIndexDT <- indexDT[!is.na(rtmIndex)]
+    #
+    # #the NAs in rtmIndex are pixels that are not in THLB (but inside the landscape) - we can remove them
+    # scfmAnnualBurns[,events := 1L]
+    # sim$disturbanceRasters <- scfmAnnualBurns
 
     ## a function indexAnnualFire() may be used in the annual event
     ## of the CBM_core module to extract the year
 
+## harvest1 is it a stack? or a brick
 
 
     # options(reproducible.useGDAL = FALSE)
@@ -637,11 +640,13 @@ Init <- function(sim) {
       ## (like in the SK runs), a stack of rasters (below), raster brick (above)
       ## or polygons? OR a sparseDT
     # stack
-      # sim$disturbanceRasters <- Cache(prepInputs,
-      #                               url = "https://drive.google.com/file/d/1fJIPVMyDu66CopA-YP-xSdP2Zx1Ll_q8",
-      #                               fun = "raster::stack",
-      #                               rasterToMatch = masterRaster,
-      #                               useGDAL = FALSE)
+      sim$disturbanceRasters <- Cache(prepInputs,
+                                    #url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
+                                    targetFile = "C:/Celine/github/spadesCBM_RIA/tif_scenario-carbon-base_20210422.tar/tif_scenario-carbon-base_20210422.tar",
+                                    fun = "raster::stack",
+                                    #destinationPath = 'inputs',
+                                    rasterToMatch = masterRaster,
+                                    useGDAL = FALSE)
     # rasters in a folder
       # distHere <- extractURL(disturbanceRasters)
       # sim$disturbanceRasters <- list.files(distHere,full.names = TRUE) %>%
