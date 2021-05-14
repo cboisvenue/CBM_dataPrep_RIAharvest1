@@ -591,6 +591,72 @@ Init <- function(sim) {
 
   if (!suppliedElsewhere("disturbanceRasters", sim)) {
     browser()
+    ## this is a case where fire rasters and harvet raster are provided in
+    ## TSA-chunks and need to be stitched back together. This function, does
+    ## that per year, makes a DT of the events per disturbance,
+    sw3Build <- function(masterRaster){
+      # find the 5 directories, one per tsa
+    tsaDirs <- grep("tsa", list.dirs('inputs'))
+    browser()
+
+    # this is the table that will get filled with all the firest
+    fireDistsDT <- data.table(pixelIndex = integer(), year = integer(), events = integer())
+    cutDistsDT <- data.table(pixelIndex = integer(), year = integer(), events = integer())
+
+    # content of one tsa folder
+    #list.files(list.dirs('inputs')[tsaDirs[1]])
+
+    years <- time(sim):end(sim)
+
+    # need to the same year in each tsaDirs
+    # these are the fire and the harvest rasters for each sim year
+    for(i in 1:length(years)){
+      # the files have the same names and are in the same order in the 5 tsa folders
+      distTifs <- grep(years[i], list.files(list.dirs('inputs')[tsaDirs[1]]))
+      # fire = distTifs[1]
+      # cut = distTifs[2]
+      fireList <- list()
+      cutList <- list()
+      for(j in 1:length(tsaDirs)){
+        browser()
+        fireList[[j]] <- raster::raster(file.path(list.dirs('inputs')[tsaDirs[j]],
+                                                  list.files(list.dirs('inputs')[tsaDirs[j]])[distTifs[1]]))
+        cutList[[j]] <- raster::raster(file.path(list.dirs('inputs')[tsaDirs[j]],
+                                                 list.files(list.dirs('inputs')[tsaDirs[j]])[distTifs[2]]))
+      }
+
+      # put the 5 rasters together
+      fireList$fun <- mean
+      fireList$na.rm <- TRUE
+      fireRast0 <- do.call(mosaic, fireList)
+      fireRast1yr <- postProcess(fireRast0,
+                                 rasterToMatch = masterRaster)
+      fireDT1yr <- data.table(pixelIndex = 1:ncell(fireRast1yr), year = years[i], events = fireRast1yr[])
+      fireDistsDT <- rbindlist(list(fireDistsDT,fireDT1yr[!is.na(events)]))
+
+      cutList$fun <- mean
+      cutList$na.rm <- TRUE
+      cutRast0 <- do.call(mosaic, cutList)
+      cutRast1yr <- postProcess(cutRast0,
+                                rasterToMatch = masterRaster)
+      cutDT1yr <- data.table(pixelIndex = 1:ncell(cutRast1yr), year = years[i], events = cutRast1yr[])
+      # cut events = 2
+      cutDT1yr[!is.na(events)]$events <- 2
+      cutDistsDT <- rbindlist(list(cutDistsDT,cutDT1yr[!is.na(events)]))
+    }
+    browser()
+    distList <- rbindlist(list(fireDistsDT, cutDistsDT))
+    return(distList)
+    }
+
+
+    harv1DT <- Cache(prepInputs,url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
+                          destinationPath = "inputs",
+                          #rasterToMatch = masterRaster,
+                          fun = quote(sw3Build(masterRaster = masterRaster)),
+                          overwrite = TRUE
+                          )
+
     ## this case is reading in a sparseDT.
     ## FRI and presentDay runs use this
     # RTM that the datatable was created with
