@@ -2,12 +2,22 @@
 
 # Greg has
 
+
 # read-in the URL
-harv1tar <- prepInputs(url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
-                       destinationPath = "inputs")
+#harv1tar <- prepInputs(url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
+#                       destinationPath = "inputs")
+                       #overwrite = TRUE,
+                       #purge = 7)
 # this one does not seem to work
 # harv1zip <- preProcess(url ="https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
 #                        destinationPath = "inputs")
+
+# problem: the prepTInput call fails...trying to pull it apart.
+harv1 <- preProcess(url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
+                    destinationPath = "inputs",
+                    targetFile = "tif_scenario-carbon-base_20210422.tar.gz",
+                    fun = "utils::untar")
+                    #purge = 7)
 
 # find the 5 directories, one per tsa
 tsaDirs <- grep("tsa", list.dirs('inputs'))

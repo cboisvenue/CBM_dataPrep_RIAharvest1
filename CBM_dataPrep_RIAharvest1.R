@@ -590,18 +590,22 @@ Init <- function(sim) {
   ### TODO give options to the user to provide a raster a data table, a raster list or a raster stack
 
   if (!suppliedElsewhere("disturbanceRasters", sim)) {
-    browser()
     ## this is a case where fire rasters and harvet raster are provided in
     ## TSA-chunks and need to be stitched back together. This function, does
     ## that per year, makes a DT of the events per disturbance,
-    sw3Build <- function(masterRaster){
+
+    # readin the .tar.gz file
+    harv1 <- Cache(preProcess,url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
+                        destinationPath = "inputs",
+                        targetFile = "tif_scenario-carbon-base_20210422.tar.gz",
+                        fun = "utils::untar")
+
+
+      #out <- untar(targetFilePath)
       # find the 5 directories, one per tsa
     tsaDirs <- grep("tsa", list.dirs('inputs'))
-    browser()
 
-    # this is the table that will get filled with all the firest
-    fireDistsDT <- data.table(pixelIndex = integer(), year = integer(), events = integer())
-    cutDistsDT <- data.table(pixelIndex = integer(), year = integer(), events = integer())
+
 
     # content of one tsa folder
     #list.files(list.dirs('inputs')[tsaDirs[1]])
@@ -610,52 +614,21 @@ Init <- function(sim) {
 
     # need to the same year in each tsaDirs
     # these are the fire and the harvest rasters for each sim year
-    for(i in 1:length(years)){
-      # the files have the same names and are in the same order in the 5 tsa folders
-      distTifs <- grep(years[i], list.files(list.dirs('inputs')[tsaDirs[1]]))
-      # fire = distTifs[1]
-      # cut = distTifs[2]
-      fireList <- list()
-      cutList <- list()
-      for(j in 1:length(tsaDirs)){
-        browser()
-        fireList[[j]] <- raster::raster(file.path(list.dirs('inputs')[tsaDirs[j]],
-                                                  list.files(list.dirs('inputs')[tsaDirs[j]])[distTifs[1]]))
-        cutList[[j]] <- raster::raster(file.path(list.dirs('inputs')[tsaDirs[j]],
-                                                 list.files(list.dirs('inputs')[tsaDirs[j]])[distTifs[2]]))
-      }
-
-      # put the 5 rasters together
-      fireList$fun <- mean
-      fireList$na.rm <- TRUE
-      fireRast0 <- do.call(mosaic, fireList)
-      fireRast1yr <- postProcess(fireRast0,
-                                 rasterToMatch = masterRaster)
-      fireDT1yr <- data.table(pixelIndex = 1:ncell(fireRast1yr), year = years[i], events = fireRast1yr[])
-      fireDistsDT <- rbindlist(list(fireDistsDT,fireDT1yr[!is.na(events)]))
-
-      cutList$fun <- mean
-      cutList$na.rm <- TRUE
-      cutRast0 <- do.call(mosaic, cutList)
-      cutRast1yr <- postProcess(cutRast0,
-                                rasterToMatch = masterRaster)
-      cutDT1yr <- data.table(pixelIndex = 1:ncell(cutRast1yr), year = years[i], events = cutRast1yr[])
-      # cut events = 2
-      cutDT1yr[!is.na(events)]$events <- 2
-      cutDistsDT <- rbindlist(list(cutDistsDT,cutDT1yr[!is.na(events)]))
-    }
-    browser()
-    distList <- rbindlist(list(fireDistsDT, cutDistsDT))
-    return(distList)
-    }
 
 
-    harv1DT <- Cache(prepInputs,url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
-                          destinationPath = "inputs",
-                          #rasterToMatch = masterRaster,
-                          fun = quote(sw3Build(masterRaster = masterRaster)),
-                          overwrite = TRUE
-                          )
+    harv1DT <- Cache(sw3Build,masterRaster = masterRaster,
+                        tsaDirs = tsaDirs,
+                        years = years)
+
+    sim$disturbanceRasters <- harv1DT
+    #
+    # ),url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
+    #                       targetFile = "tif_scenario-carbon-base_20210422.tar.gz",
+    #                       destinationPath = "inputs",
+    #                       rasterToMatch = masterRaster,
+    #                       fun = quote(sw3Build(masterRaster = masterRaster)),
+    #                       overwrite = TRUE
+    #                       )
 
     ## this case is reading in a sparseDT.
     ## FRI and presentDay runs use this
@@ -706,13 +679,13 @@ Init <- function(sim) {
       ## (like in the SK runs), a stack of rasters (below), raster brick (above)
       ## or polygons? OR a sparseDT
     # stack
-      sim$disturbanceRasters <- Cache(prepInputs,
-                                    #url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
-                                    targetFile = "C:/Celine/github/spadesCBM_RIA/tif_scenario-carbon-base_20210422.tar/tif_scenario-carbon-base_20210422.tar",
-                                    fun = "raster::stack",
-                                    #destinationPath = 'inputs',
-                                    rasterToMatch = masterRaster,
-                                    useGDAL = FALSE)
+      # sim$disturbanceRasters <- Cache(prepInputs,
+      #                               #url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
+      #                               targetFile = "C:/Celine/github/spadesCBM_RIA/tif_scenario-carbon-base_20210422.tar/tif_scenario-carbon-base_20210422.tar",
+      #                               fun = "raster::stack",
+      #                               #destinationPath = 'inputs',
+      #                               rasterToMatch = masterRaster,
+      #                               useGDAL = FALSE)
     # rasters in a folder
       # distHere <- extractURL(disturbanceRasters)
       # sim$disturbanceRasters <- list.files(distHere,full.names = TRUE) %>%
