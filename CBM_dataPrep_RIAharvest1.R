@@ -216,6 +216,7 @@ Init <- function(sim) {
 
   omit <- which(objectNamesExpected %in% c("userDistFile", "userGcM3File"))
   available <- available[-omit]
+  objectNamesExpected <- objectNamesExpected[-omit]
 
   if (any(!available)) {
     stop(
@@ -615,7 +616,6 @@ Init <- function(sim) {
     # need to the same year in each tsaDirs
     # these are the fire and the harvest rasters for each sim year
 
-
     harv1DT <- Cache(sw3Build,masterRaster = masterRaster,
                         tsaDirs = tsaDirs,
                         years = years)
@@ -632,30 +632,30 @@ Init <- function(sim) {
 
     ## this case is reading in a sparseDT.
     ## FRI and presentDay runs use this
-    # RTM that the datatable was created with
-    # RIA_RTM <- prepInputs(url = 'https://drive.google.com/file/d/1h7gK44g64dwcoqhij24F2K54hs5e35Ci/view?usp=sharing',
-    #                       destinationPath = dPath) #you probably already have this raster - RIA_RTM.tif on google
-    # # need the masterRaster (sim$masterRaster)
-    # # sparseDT
+    ## RTM that the datatable was created with
+    RIA_RTM <- prepInputs(url = 'https://drive.google.com/file/d/1h7gK44g64dwcoqhij24F2K54hs5e35Ci/view?usp=sharing',
+                          destinationPath = dPath) #you probably already have this raster - RIA_RTM.tif on google
+    # need the masterRaster (sim$masterRaster)
+    # sparseDT
     # scfmAnnualBurns <- prepInputs(url = 'https://drive.google.com/file/d/1P41fr5fimmxOTGfNRBgjwXetceW6YS1M/view?usp=sharing',
     #                               destinationPath = 'inputs',
     #                               overwrite = TRUE,
     #                               fun = 'readRDS')
-    #
-    # IndexRTM <- setValues(RIA_RTM, 1:ncell(RIA_RTM))
-    #
-    # #postProcess to match tempTHLB
-    # IndexTHLB <- setValues(sim$masterRaster, 1:ncell(sim$masterRaster))
-    #
-    # #postProcess the RTM
-    # IndexRTM <- postProcess(IndexRTM, rasterToMatch = sim$masterRaster)
-    # #build matching data.table
-    #
-    # indexDT <- data.table(rtmIndex = getValues(IndexRTM),
-    #                       thlbIndex = getValues(IndexTHLB))
-    # sim$distIndexDT <- indexDT[!is.na(rtmIndex)]
-    #
-    # #the NAs in rtmIndex are pixels that are not in THLB (but inside the landscape) - we can remove them
+
+    IndexRTM <- setValues(RIA_RTM, 1:ncell(RIA_RTM))
+
+    #postProcess to match tempTHLB
+    IndexTHLB <- setValues(sim$masterRaster, 1:ncell(sim$masterRaster))
+
+    #postProcess the RTM
+    IndexRTM <- postProcess(IndexRTM, rasterToMatch = sim$masterRaster)
+    #build matching data.table
+
+    indexDT <- data.table(rtmIndex = getValues(IndexRTM),
+                          thlbIndex = getValues(IndexTHLB))
+    sim$distIndexDT <- indexDT[!is.na(rtmIndex)]
+
+    #the NAs in rtmIndex are pixels that are not in THLB (but inside the landscape) - we can remove them
     # scfmAnnualBurns[,events := 1L]
     # sim$disturbanceRasters <- scfmAnnualBurns
 
