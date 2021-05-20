@@ -595,36 +595,37 @@ Init <- function(sim) {
     ## TSA-chunks and need to be stitched back together. This function, does
     ## that per year, makes a DT of the events per disturbance,
 
-    # readin the .tar.gz file
+    # readin the .tar.gz file https://drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A
     harv1 <- Cache(preProcess,url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
-                        destinationPath = "inputs",
+                        destinationPath = "inputs/harv1",
                         targetFile = "tif_scenario-carbon-base_20210422.tar.gz",
                         fun = "utils::untar")
 
 
       #out <- untar(targetFilePath)
       # find the 5 directories, one per tsa
-    tsaDirs <- grep("tsa", list.dirs('inputs'))
+    tsaDirs <- grep("tsa", list.dirs('inputs/harv1'))
 
 
 
     # content of one tsa folder
-    #list.files(list.dirs('inputs')[tsaDirs[1]])
+    #list.files(list.dirs('inputs/harv1')[tsaDirs[1]])
 
     years <- time(sim):end(sim)
 
     # need to the same year in each tsaDirs
     # these are the fire and the harvest rasters for each sim year
-
+    pathsTifs <- "inputs/harv1"
     harv1DT <- Cache(sw3Build,masterRaster = masterRaster,
                         tsaDirs = tsaDirs,
-                        years = years)
+                        years = years,
+                        pathsTifs = pathsTifs)
 
     sim$disturbanceRasters <- harv1DT
     #
     # ),url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
     #                       targetFile = "tif_scenario-carbon-base_20210422.tar.gz",
-    #                       destinationPath = "inputs",
+    #                       destinationPath = "inputs/harv1",
     #                       rasterToMatch = masterRaster,
     #                       fun = quote(sw3Build(masterRaster = masterRaster)),
     #                       overwrite = TRUE
