@@ -597,10 +597,13 @@ Init <- function(sim) {
     ## TSA-chunks and need to be stitched back together. This function, does
     ## that per year, makes a DT of the events per disturbance,
 
-    # readin the .tar.gz file https://drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A
-    harv1 <- Cache(preProcess,url = "https:/drive.google.com/file/d/1H3eAQjYZLPQzMDIdvlSC0bYfrPm1tp0A",
+    # readin the .tar.gz file
+    # https://drive.google.com/file/d/1JpdB9CKpHga55jBmOlATkVyemqbUjtv5 (updated
+    # June 23 2021)
+
+    harv1 <- Cache(preProcess,url = "https://drive.google.com/file/d/1JpdB9CKpHga55jBmOlATkVyemqbUjtv5",
                         destinationPath = "inputs/harv1",
-                        targetFile = "tif_scenario-carbon-base_20210422.tar.gz",
+                        targetFile = "tif_scenrio-carbon-base_20210622.tar.gz",
                         fun = "utils::untar")
 
 
