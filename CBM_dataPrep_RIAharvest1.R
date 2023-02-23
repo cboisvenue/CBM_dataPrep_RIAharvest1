@@ -1,6 +1,6 @@
 defineModule(sim, list(
   name = "CBM_dataPrep_RIAharvest1",
-  description = "A data preparation module to format and prepare user-provided input to the SpaDES forest-carbon modelling familly.",
+  description = "A data preparation module to format and prepare user-provided input to the SpaDES forest-carbon modelling family.",
   keywords = NA,
   authors = c(
     person("Celine", "Boisvenue", email = "Celine.Boisvenue@nrcan-rncan.gc.ca", role = c("aut", "cre")),
@@ -63,7 +63,7 @@ defineModule(sim, list(
     ),
     expectsInput(objectName = "dbPath", objectClass = "character", desc = NA, sourceURL = NA),
     expectsInput(objectName = "sqlDir", objectClass = "character", desc = NA, sourceURL = NA),
-   expectsInput(
+    expectsInput(
       objectName = "cbmAdmin", objectClass = "dataframe",
       desc = "Provides equivalent between provincial boundaries, CBM-id for provincial boundaries and CBM-spatial unit ids",
       sourceURL = "https://drive.google.com/file/d/1xdQt9JB5KRIw72uaN5m3iOk8e34t9dyz"
@@ -190,20 +190,6 @@ doEvent.CBM_dataPrep_RIAharvest1 <- function(sim, eventTime, eventType, debug = 
       # schedule future event(s)
       sim <- scheduleEvent(sim, P(sim)$.saveInitialTime, "CBM_dataPrep_RIAharvest1", "save")
     },
-    save = {
-      # ! ----- EDIT BELOW ----- ! #
-      # do stuff for this event
-
-      # e.g., call your custom functions/methods here
-      # you can define your own methods below this `doEvent` function
-
-      # schedule future event(s)
-
-      # e.g.,
-      # sim <- scheduleEvent(sim, time(sim) + P(sim)$.saveInterval, "CBM_dataPrep_RIAharvest1", "save")
-
-      # ! ----- STOP EDITING ----- ! #
-    },
     warning(paste("Undefined event type: '", current(sim)[1, "eventType", with = FALSE],
       "' in module '", current(sim)[1, "moduleName", with = FALSE], "'",
       sep = ""
@@ -211,7 +197,6 @@ doEvent.CBM_dataPrep_RIAharvest1 <- function(sim, eventTime, eventType, debug = 
   )
   return(invisible(sim))
 }
-
 
 Init <- function(sim) {
   ## making sure the CBM_defaults.R module was run
@@ -250,6 +235,7 @@ Init <- function(sim) {
   # )
   # keep only the pixels that have all the information: the pixels that will be simulated
   spatialDT <- sim$allPixDT[!is.na(ages),]
+  setnames(spatialDT, "ecozones.layer", "ecozones")
 
   #spatialDT <- level2DT
   ## END data.table of all pixels---------------------------------------------------------
