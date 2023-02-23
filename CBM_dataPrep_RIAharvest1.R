@@ -536,11 +536,12 @@ Init <- function(sim) {
 
   #1. VRI rasters gcID and age
   # study area raster
-  RIArtm <- prepInputs(url = "https://drive.google.com/file/d/1h7gK44g64dwcoqhij24F2K54hs5e35Ci/view?usp=sharing",
+  RIArtm <- prepInputs(url = "https://drive.google.com/file/d/1h7gK44g64dwcoqhij24F2K54hs5e35Ci/",
                        destinationPath = dPath)
   # forest inventory info. this makes a raster stack of the two main rasters, gcIDRaster and ageRaster
 
-  RIA_VRIstack <- Cache(CBMutils::prepInputsVRI,url = "https://drive.google.com/file/d/1LXSX8M46EnsTCM3wGhkiMgqWcqTubC12",
+  RIA_VRIstack <- Cache(CBMutils::prepInputsVRI,
+                        url = "https://drive.google.com/file/d/1LXSX8M46EnsTCM3wGhkiMgqWcqTubC12/",
                         dPath = dPath,
                         rasterToMatch = RIArtm
   )
@@ -560,10 +561,10 @@ Init <- function(sim) {
 
 
   #4. Make the ecozone Raster (ecoRaster)"http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip"
-  ecozone <- Cache(CBMutils::prepInputsEcozones, url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
-                   dPath = dPath,
+  ecozone <- Cache(LandR::prepEcozonesRst,
+                   url = "http://sis.agr.gc.ca/cansis/nsdb/ecostrat/zone/ecozone_shp.zip",
+                   destinationPath = dPath,
                    rasterToMatch = masterRaster)
-
 
   #5. Get just BC
   #provs <- getData("GADM", country = "CAN", level = 1)
@@ -611,12 +612,9 @@ Init <- function(sim) {
                         targetFile = "tif_scenrio-carbon-base_20210622.tar.gz",
                         fun = "utils::untar")
 
-
-      #out <- untar(targetFilePath)
-      # find the 5 directories, one per tsa
+    #out <- untar(targetFilePath)
+    # find the 5 directories, one per tsa
     tsaDirs <- grep("tsa", list.dirs('inputs/harv1'))
-
-
 
     # content of one tsa folder
     #list.files(list.dirs('inputs/harv1')[tsaDirs[1]])
